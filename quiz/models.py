@@ -85,8 +85,12 @@ class QuizResult(models.Model):
         null=True,
         blank=True
     )
+    nickname = models.CharField(max_length=50)
     score = models.PositiveIntegerField()
     completed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nickname} - {self.quiz.title} - {self.score}"
 
     def __str__(self):
         return f"{self.user.username} - {self.quiz.title} - {self.score}"
