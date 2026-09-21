@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Онлайн-вікторина
+{% endblock %}
+
+{% block content %}
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+        <span>Q</span>uiz
+    </a>
+
+    <nav>
+        <a href="/" class="active">Головна</a>
+        <a href="#">Вікторини</a>
+        <a href="#">Рейтинг</a>
+    </nav>
+
+    <a href="#" class="login-btn">
+        Увійти
+    </a>
+
+</header>
+
+
+<main>
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <div class="badge">
+                🧠 &nbsp; ПЕРЕВІР СЕБЕ
+            </div>
+
+            <h1>
+                Створи.
+                <span>Грай.</span>
+                Перемагай.
+            </h1>
+
+            <p>
+                Створюй власні вікторини, проходь цікаві тести
+                та перевіряй свої знання разом з іншими.
+            </p>
+
+            <div class="hero-buttons">
+
+                <a href="#" class="main-btn">
+                    Почати вікторину
+                    <span>→</span>
+                </a>
+
+                <a href="#" class="secondary-btn">
+                    Створити вікторину
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="hero-decoration">
+
+            <div class="glow glow-one"></div>
+            <div class="glow glow-two"></div>
+
+            <div class="quiz-preview">
+
+                <div class="preview-top">
+                    <span>QUIZ</span>
+                    <span>● LIVE</span>
+                </div>
+
+                <div class="preview-icon">
+                    🧠
+                </div>
+
+                <h3>
+                    Наскільки добре<br>
+                    ти знаєш світ?
+                </h3>
+
+                <div class="preview-progress">
+                    <span></span>
+                </div>
+
+                <div class="preview-info">
+                    <span>10 питань</span>
+                    <span>🏆 100 XP</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- QUIZZES -->
+
+    <section class="quiz-section">
+
+        <div class="section-header">
+
+            <div>
+                <p class="section-label">
+                    ПОПУЛЯРНЕ
+                </p>
+
+                <h2>
+                    Вікторини для тебе
+                </h2>
+            </div>
+
+            <a href="#" class="all-link">
+                Переглянути всі →
+            </a>
+
+        </div>
+
+
+        <div class="quiz-grid">
+
+            {% for quiz in quizzes %}
+
+            <article class="quiz-card">
+
+                <div class="quiz-card-top">
+
+                    <div class="quiz-icon">
+                        🧠
+                    </div>
+
+                    <span class="quiz-badge">
+                        QUIZ
+                    </span>
+
+                </div>
+
+                <h3>
+                    {{ quiz.title }}
+                </h3>
+
+                <p>
+                    {{ quiz.description|default:"Перевір свої знання у цій вікторині." }}
+                </p>
+
+                <div class="quiz-info">
+
+                    <span>
+                        👤 {{ quiz.author.username }}
+                    </span>
+
+                    <span>
+                        🎯 Вікторина
+                    </span>
+
+                </div>
+
+                <a href="#" class="play-btn">
+                    Пройти
+                    <span>→</span>
+                </a>
+
+            </article>
+
+            {% empty %}
+
+            <div class="empty-card">
+
+                <div class="empty-icon">
+                    ✦
+                </div>
+
+                <h3>
+                    Вікторин поки немає
+                </h3>
+
+                <p>
+                    Створи першу вікторину та вона з'явиться тут.
+                </p>
+
+                <a href="#" class="main-btn">
+                    Створити вікторину
+                    <span>→</span>
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <div class="footer-logo">
+        <span>Q</span>uiz
+    </div>
+
+    <p>
+        Онлайн-вікторина © 2026
+    </p>
+
+</footer>
+
+{% endblock %}

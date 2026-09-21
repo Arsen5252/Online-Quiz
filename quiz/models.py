@@ -116,4 +116,3 @@ class QuestionResult(models.Model):
 
     def __str__(self):
         return f"{self.quiz_result.user.username} - {self.question.text[:50]} - {'Correct' if self.is_correct else 'Incorrect'}"
-
