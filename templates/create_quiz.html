@@ -1,0 +1,335 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Створити вікторину | Quiz{% endblock %}
+
+{% block content %}
+
+<header class="navbar">
+    <a href="{% url 'quiz_list' %}" class="logo">
+        <span>Q</span>uiz
+    </a>
+
+    <nav>
+        <a href="{% url 'quiz_list' %}">Головна</a>
+        <a href="#">Вікторини</a>
+        <a href="#">Рейтинг</a>
+    </nav>
+
+    <span class="nav-username">👤 {{ user.username }}</span>
+</header>
+
+<main class="editor-page">
+
+    <div class="editor-heading">
+        <a href="{% url 'quiz_list' %}" class="create-back">
+            ← На головну
+        </a>
+
+        <div class="badge">✦ QUIZ CREATOR</div>
+
+        <h1>Створи свою <span>вікторину.</span></h1>
+
+        <p>
+            Додай запитання, обери правильні відповіді
+            та налаштуй час для кожного запитання.
+        </p>
+    </div>
+
+    <form method="POST"
+          enctype="multipart/form-data"
+          id="quiz-form">
+
+        {% csrf_token %}
+
+        <input type="hidden" name="questions" id="questions-data">
+
+        {% if error %}
+            <div class="editor-error">{{ error }}</div>
+        {% endif %}
+
+        {% for error in form.non_field_errors %}
+            <div class="editor-error">{{ error }}</div>
+        {% endfor %}
+
+        <section class="editor-card">
+
+            <div class="editor-card-title">
+                <span class="editor-number">01</span>
+                <div>
+                    <h2>Основна інформація</h2>
+                    <p>Придумай назву та опис своєї гри.</p>
+                </div>
+            </div>
+
+            <div class="create-field">
+                <label for="{{ form.title.id_for_label }}">
+                    Назва вікторини *
+                </label>
+
+                {{ form.title }}
+
+                {% for error in form.title.errors %}
+                    <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="create-field">
+                <label for="{{ form.description.id_for_label }}">
+                    Опис
+                </label>
+
+                {{ form.description }}
+            </div>
+
+        </section>
+
+        <div class="editor-section-heading">
+            <div>
+                <div class="badge">✦ ЗАПИТАННЯ</div>
+                <h2>Твоя вікторина</h2>
+                <p>Додай запитання та чотири варіанти відповіді.</p>
+            </div>
+
+            <span id="question-count">0 запитань</span>
+        </div>
+
+        <div id="questions-container"></div>
+
+        <button type="button"
+                class="add-question-btn"
+                id="add-question">
+            <span>＋</span>
+            Додати запитання
+        </button>
+
+        <div class="editor-footer">
+            <a href="{% url 'quiz_list' %}" class="create-cancel">
+                Скасувати
+            </a>
+
+            <button type="submit" class="create-submit">
+                Зберегти вікторину →
+            </button>
+        </div>
+
+    </form>
+
+</main>
+
+<template id="question-template">
+    <section class="editor-card question-card">
+
+        <div class="question-heading">
+            <div class="editor-card-title">
+                <span class="editor-number question-number"></span>
+                <div>
+                    <h2>Запитання</h2>
+                    <p>Налаштуй запитання та відповіді.</p>
+                </div>
+            </div>
+
+            <button type="button" class="remove-question">
+                Видалити
+            </button>
+        </div>
+
+        <div class="create-field">
+            <label>Текст запитання *</label>
+
+            <textarea class="question-text"
+                      maxlength="2000"
+                      placeholder="Наприклад: Яка найбільша планета Сонячної системи?"
+                      required></textarea>
+        </div>
+
+        <div class="question-settings">
+
+            <div class="create-field">
+                <label>Тип запитання</label>
+
+                <select class="question-type">
+                    <option value="text">Текст</option>
+                    <option value="image">Зображення</option>
+                    <option value="video">Відео</option>
+                </select>
+            </div>
+
+            <div class="create-field">
+                <label>Час на відповідь</label>
+
+                <select class="question-time">
+                    <option value="10">10 секунд</option>
+                    <option value="20">20 секунд</option>
+                    <option value="30" selected>30 секунд</option>
+                    <option value="60">60 секунд</option>
+                    <option value="120">120 секунд</option>
+                </select>
+            </div>
+
+            <div class="create-field">
+                <label>Бали</label>
+
+                <select class="question-score">
+                    <option value="1">1 бал</option>
+                    <option value="2">2 бали</option>
+                    <option value="5">5 балів</option>
+                    <option value="10">10 балів</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="question-media" hidden>
+            <div class="image-field create-field" hidden>
+                <label>Зображення</label>
+                <input type="file" accept="image/*" class="question-image">
+            </div>
+
+            <div class="video-field create-field" hidden>
+                <label>Посилання на відео</label>
+                <input type="url"
+                       class="question-video"
+                       placeholder="https://youtube.com/...">
+            </div>
+        </div>
+
+        <div class="answers-heading">
+            <h3>Варіанти відповідей</h3>
+            <p>Познач кружечком одну правильну відповідь.</p>
+        </div>
+
+        <div class="answers-grid">
+            <label class="answer-option">
+                <input type="radio" class="correct-answer" value="0" required>
+                <span class="answer-marker">A</span>
+                <input type="text" class="answer-text"
+                       placeholder="Перша відповідь" maxlength="300" required>
+            </label>
+
+            <label class="answer-option">
+                <input type="radio" class="correct-answer" value="1">
+                <span class="answer-marker">B</span>
+                <input type="text" class="answer-text"
+                       placeholder="Друга відповідь" maxlength="300" required>
+            </label>
+
+            <label class="answer-option">
+                <input type="radio" class="correct-answer" value="2">
+                <span class="answer-marker">C</span>
+                <input type="text" class="answer-text"
+                       placeholder="Третя відповідь" maxlength="300" required>
+            </label>
+
+            <label class="answer-option">
+                <input type="radio" class="correct-answer" value="3">
+                <span class="answer-marker">D</span>
+                <input type="text" class="answer-text"
+                       placeholder="Четверта відповідь" maxlength="300" required>
+            </label>
+        </div>
+
+    </section>
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('questions-container');
+    const template = document.getElementById('question-template');
+    const addButton = document.getElementById('add-question');
+    const form = document.getElementById('quiz-form');
+
+    function updateNumbers() {
+        const cards = container.querySelectorAll('.question-card');
+
+        cards.forEach((card, index) => {
+            card.querySelector('.question-number').textContent =
+                String(index + 1).padStart(2, '0');
+
+            card.querySelectorAll('.correct-answer').forEach(radio => {
+                radio.name = `correct_${index}`;
+            });
+
+            card.querySelector('.question-image').name = `image_${index}`;
+        });
+
+        document.getElementById('question-count').textContent =
+            `${cards.length} запитань`;
+    }
+
+    function addQuestion() {
+        if (container.children.length >= 50) {
+            alert('Можна додати максимум 50 запитань.');
+            return;
+        }
+
+        const card = template.content.firstElementChild.cloneNode(true);
+
+        card.querySelector('.remove-question').addEventListener('click', () => {
+            card.remove();
+            updateNumbers();
+        });
+
+        card.querySelector('.question-type').addEventListener('change', event => {
+            const type = event.target.value;
+            const media = card.querySelector('.question-media');
+            const imageField = card.querySelector('.image-field');
+            const videoField = card.querySelector('.video-field');
+            const imageInput = card.querySelector('.question-image');
+            const videoInput = card.querySelector('.question-video');
+
+            media.hidden = type === 'text';
+            imageField.hidden = type !== 'image';
+            videoField.hidden = type !== 'video';
+
+            imageInput.required = type === 'image';
+            videoInput.required = type === 'video';
+        });
+
+        container.appendChild(card);
+        updateNumbers();
+    }
+
+    addButton.addEventListener('click', addQuestion);
+
+    form.addEventListener('submit', event => {
+        const cards = [...container.querySelectorAll('.question-card')];
+
+        if (!cards.length) {
+            event.preventDefault();
+            alert('Додай хоча б одне запитання.');
+            return;
+        }
+
+        const questions = [];
+
+        for (const card of cards) {
+            const selected = card.querySelector('.correct-answer:checked');
+
+            if (!selected) {
+                event.preventDefault();
+                alert('Обери правильну відповідь у кожному запитанні.');
+                return;
+            }
+
+            questions.push({
+                text: card.querySelector('.question-text').value,
+                type: card.querySelector('.question-type').value,
+                time_limit: Number(card.querySelector('.question-time').value),
+                score: Number(card.querySelector('.question-score').value),
+                video: card.querySelector('.question-video').value,
+                answers: [...card.querySelectorAll('.answer-text')]
+                    .map(input => input.value),
+                correct: Number(selected.value)
+            });
+        }
+
+        document.getElementById('questions-data').value =
+            JSON.stringify(questions);
+    });
+
+    addQuestion();
+});
+</script>
+
+{% endblock %}

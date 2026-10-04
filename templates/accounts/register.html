@@ -1,0 +1,110 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Реєстрація | Quiz{% endblock %}
+
+{% block content %}
+
+<header class="navbar">
+    <a href="{% url 'quiz_list' %}" class="logo">
+        <span>Q</span>uiz
+    </a>
+
+    <nav>
+        <a href="{% url 'quiz_list' %}">Головна</a>
+        <a href="#">Вікторини</a>
+        <a href="#">Рейтинг</a>
+    </nav>
+
+    <a href="#" class="login-btn">Увійти</a>
+</header>
+
+<main class="register-page">
+
+    <section class="register-intro">
+
+        <div class="badge">✦ ПРИЄДНУЙСЯ ДО ГРИ</div>
+
+        <h1>
+            Твоя наступна<br>
+            перемога <span>починається тут.</span>
+        </h1>
+
+        <p>
+            Створюй власні вікторини, змагайся з друзями
+            та перевіряй свої знання. Усе починається
+            з одного акаунта.
+        </p>
+
+        <div class="register-preview">
+            <div class="register-preview-icon">✦</div>
+
+            <div>
+                <h3>Створюй. Грай. Перемагай.</h3>
+                <p>Твоя гра — твої правила.</p>
+            </div>
+        </div>
+
+        <div class="register-glow"></div>
+
+    </section>
+
+    <section class="register-form-card">
+
+        <div class="register-form-heading">
+            <div class="register-form-icon">✦</div>
+
+            <h2>Створи акаунт</h2>
+            <p>
+                Уже маєш акаунт?
+                <span>Вхід скоро з'явиться</span>
+            </p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+
+            {% for field in form %}
+
+                <div class="form-group">
+
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <div class="form-help">
+                            {{ field.help_text }}
+                        </div>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <p class="form-error">{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endfor %}
+
+            {% for error in form.non_field_errors %}
+                <p class="form-error">{{ error }}</p>
+            {% endfor %}
+
+            <button type="submit" class="auth-submit">
+                Створити акаунт <span>→</span>
+            </button>
+
+        </form>
+
+        <div class="register-bottom">
+            <span>✦</span>
+            Готовий до першої вікторини?
+        </div>
+
+    </section>
+
+</main>
+
+{% endblock %}

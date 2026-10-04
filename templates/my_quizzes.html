@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Мої вікторини | Quiz{% endblock %}
+
+{% block content %}
+
+<header class="navbar">
+    <a href="{% url 'quiz_list' %}" class="logo">
+        <span>Q</span>uiz
+    </a>
+
+    <nav>
+        <a href="{% url 'quiz_list' %}">Головна</a>
+        <a href="{% url 'my_quizzes' %}" class="active">Мої вікторини</a>
+        <a href="#">Рейтинг</a>
+    </nav>
+
+    <span class="nav-username">👤 {{ user.username }}</span>
+</header>
+
+
+<main class="my-quizzes-page">
+
+    <div class="my-quizzes-heading">
+
+        <div>
+            <div class="badge">✦ МОЯ БІБЛІОТЕКА</div>
+
+            <h1>
+                Мої <span>вікторини.</span>
+            </h1>
+
+            <p>
+                Керуй створеними вікторинами та створюй нові.
+            </p>
+        </div>
+
+        <a href="{% url 'create_quiz' %}" class="main-btn">
+            + Створити вікторину
+        </a>
+
+    </div>
+
+
+    {% if quizzes %}
+
+        <div class="my-quizzes-grid">
+
+            {% for quiz in quizzes %}
+
+                <article class="my-quiz-card">
+
+                    <div class="my-quiz-card-top">
+
+                        <div class="my-quiz-icon">
+                            ✦
+                        </div>
+
+                        <span class="my-quiz-date">
+                            {{ quiz.created_at|date:"d.m.Y" }}
+                        </span>
+
+                    </div>
+
+
+                    <h2>{{ quiz.title }}</h2>
+
+                    <p class="my-quiz-description">
+                        {{ quiz.description|default:"Без опису"|truncatechars:120 }}
+                    </p>
+
+
+                    <div class="my-quiz-details">
+
+                        <div>
+                            <span>ПИТАННЯ</span>
+                            <strong>{{ quiz.questions.count }}</strong>
+                        </div>
+
+                        <div>
+                            <span>КОД</span>
+                            <strong>{{ quiz.invitation_code }}</strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="my-quiz-actions">
+
+                        <a href="{% url 'quiz_detail' quiz.id %}" class="my-quiz-open">
+                            Переглянути
+                        </a>
+
+                        <a href="#" class="my-quiz-edit">
+                            Редагувати
+                        </a>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+
+    {% else %}
+
+        <div class="profile-empty">
+
+            <div class="profile-empty-icon">
+                ✦
+            </div>
+
+            <h3>У тебе ще немає вікторин</h3>
+
+            <p>
+                Створи свою першу вікторину — вона з'явиться тут.
+            </p>
+
+            <a href="{% url 'create_quiz' %}"
+               class="main-btn my-quizzes-empty-btn">
+                + Створити вікторину
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</main>
+
+{% endblock %}

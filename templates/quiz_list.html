@@ -18,9 +18,44 @@
         <a href="#">Рейтинг</a>
     </nav>
 
-    <a href="#" class="login-btn">
-        Увійти
-    </a>
+    {% if user.is_authenticated %}
+
+    <div class="profile-menu">
+        <button class="profile-button" type="button">
+            <span class="profile-icon">👤</span>
+            <span>{{ user.username }}</span>
+            <span class="profile-arrow">⌄</span>
+        </button>
+
+        <div class="profile-dropdown">
+            <a href="{% url 'profile' %}">
+                👤 Мій профіль
+            </a>
+
+            <a href="#">
+                🧠 Мої вікторини
+            </a>
+
+            <a href="#">
+                ⚙️ Налаштування
+            </a>
+
+            <div class="profile-divider"></div>
+
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="profile-logout">
+                    🚪 Вийти
+                </button>
+            </form>
+        </div>
+    </div>
+
+{% else %}
+
+    <a href="{% url 'login' %}" class="login-btn">Увійти</a>
+
+{% endif %}
 
 </header>
 
@@ -55,7 +90,7 @@
                     <span>→</span>
                 </a>
 
-                <a href="#" class="secondary-btn">
+                <a href="{% url 'create_quiz' %}" class="secondary-btn">
                     Створити вікторину
                 </a>
 

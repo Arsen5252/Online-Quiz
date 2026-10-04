@@ -92,8 +92,6 @@ class QuizResult(models.Model):
     def __str__(self):
         return f"{self.nickname} - {self.quiz.title} - {self.score}"
 
-    def __str__(self):
-        return f"{self.user.username} - {self.quiz.title} - {self.score}"
 
 class QuestionResult(models.Model):
     question = models.ForeignKey(

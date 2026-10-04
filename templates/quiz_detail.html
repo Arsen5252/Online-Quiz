@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ quiz.title }} | Quiz{% endblock %}
+
+{% block content %}
+
+<header class="navbar">
+
+    <a href="{% url 'quiz_list' %}" class="logo">
+        <span>Q</span>uiz
+    </a>
+
+    <nav>
+        <a href="{% url 'quiz_list' %}">Головна</a>
+        <a href="{% url 'my_quizzes' %}" class="active">
+            Мої вікторини
+        </a>
+        <a href="#">Рейтинг</a>
+    </nav>
+
+    <span class="nav-username">
+        👤 {{ user.username }}
+    </span>
+
+</header>
+
+
+<main class="editor-page">
+
+    <div class="editor-heading">
+
+        <a href="{% url 'my_quizzes' %}" class="create-back">
+            ← Мої вікторини
+        </a>
+
+        <div class="badge">
+            ✦ ПЕРЕГЛЯД ВІКТОРИНИ
+        </div>
+
+        <h1>
+            {{ quiz.title }}
+        </h1>
+
+        <p>
+            {{ quiz.description|default:"Без опису" }}
+        </p>
+
+    </div>
+
+
+    <section class="editor-card">
+
+        <div class="editor-card-title">
+
+            <span class="editor-number">
+                #
+            </span>
+
+            <div>
+                <h2>Інформація</h2>
+                <p>Основні дані цієї вікторини.</p>
+            </div>
+
+        </div>
+
+        <div class="quiz-detail-info">
+
+            <p>
+                Код запрошення:
+                <strong>{{ quiz.invitation_code }}</strong>
+            </p>
+
+            <p>
+                Кількість питань:
+                <strong>{{ quiz.questions.count }}</strong>
+            </p>
+
+            <p>
+                Створено:
+                <strong>{{ quiz.created_at|date:"d.m.Y" }}</strong>
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <div class="editor-section-heading">
+
+        <div>
+            <div class="badge">✦ ЗАПИТАННЯ</div>
+
+            <h2>Список запитань</h2>
+
+            <p>
+                Усі запитання та варіанти відповідей.
+            </p>
+        </div>
+
+    </div>
+
+
+    {% for question in quiz.questions.all %}
+
+        <section class="editor-card">
+
+            <div class="editor-card-title">
+
+                <span class="editor-number">
+                    {{ forloop.counter|stringformat:"02d" }}
+                </span>
+
+                <div>
+                    <h2>{{ question.text }}</h2>
+
+                    <p>
+                        {{ question.time_limit }} сек ·
+                        {{ question.score }} балів
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="quiz-detail-answers">
+
+                {% for answer in question.answers.all %}
+
+                    <div class="quiz-detail-answer {% if answer.is_correct %}correct{% endif %}">
+
+                        <span>
+                            {{ forloop.counter }}
+                        </span>
+
+                        <p>
+                            {{ answer.text }}
+                        </p>
+
+                        {% if answer.is_correct %}
+                            <strong>✓ Правильна</strong>
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    {% empty %}
+
+        <div class="profile-empty">
+
+            <div class="profile-empty-icon">?</div>
+
+            <h3>Запитань немає</h3>
+
+            <p>
+                У цій вікторині поки немає запитань.
+            </p>
+
+        </div>
+
+    {% endfor %}
+
+</main>
+
+{% endblock %}

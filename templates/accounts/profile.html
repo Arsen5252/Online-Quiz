@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Мій профіль
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-page">
+
+    <div class="profile-container">
+
+        <a href="{% url 'quiz_list' %}" class="profile-back">
+            ← На головну
+        </a>
+
+        <section class="profile-header-card">
+
+            <div class="profile-avatar">
+                {{ user.username|first|upper }}
+            </div>
+
+            <div class="profile-main-info">
+                <p class="profile-label">МІЙ ПРОФІЛЬ</p>
+
+                <h1>{{ user.username }}</h1>
+
+                <p class="profile-date">
+                    Учасник з {{ user.date_joined|date:"d.m.Y" }}
+                </p>
+            </div>
+
+        </section>
+
+
+        <section class="profile-stats">
+
+            <div class="profile-stat-card">
+                <span class="profile-stat-icon">🧠</span>
+
+                <div>
+                    <strong>0</strong>
+                    <p>Пройдено вікторин</p>
+                </div>
+            </div>
+
+            <div class="profile-stat-card">
+                <span class="profile-stat-icon">✦</span>
+
+                <div>
+                    <strong>{{ user.quizzes.count }}</strong>
+                    <p>Створено вікторин</p>
+                </div>
+            </div>
+
+            <div class="profile-stat-card">
+                <span class="profile-stat-icon">⚡</span>
+
+                <div>
+                    <strong>0</strong>
+                    <p>Набрано балів</p>
+                </div>
+            </div>
+
+        </section>
+
+
+        <section class="profile-section">
+
+            <div class="profile-section-heading">
+                <div>
+                    <p class="profile-label">ТВОЇ РОБОТИ</p>
+                    <h2>Створені вікторини</h2>
+                </div>
+
+                <a href="{% url 'create_quiz' %}" class="profile-create-btn">
+                    + Створити
+                </a>
+            </div>
+
+            {% if user.quizzes.all %}
+
+    <div class="profile-quiz-list">
+
+        {% for quiz in user.quizzes.all %}
+
+            <div class="profile-quiz-card">
+
+                <div class="profile-quiz-info">
+                    <h3>{{ quiz.title }}</h3>
+
+                    <p>
+                        {{ quiz.description|default:"Без опису"|truncatechars:100 }}
+                    </p>
+                </div>
+
+                <div class="profile-quiz-meta">
+                    <span>
+                        {{ quiz.questions.count }} питань
+                    </span>
+
+                    <span>
+                        {{ quiz.created_at|date:"d.m.Y" }}
+                    </span>
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+{% else %}
+
+    <div class="profile-empty">
+        <div class="profile-empty-icon">✦</div>
+
+        <h3>Тут будуть твої вікторини</h3>
+
+        <p>
+            Вікторини, які ти створиш, з'являться в цьому розділі.
+        </p>
+    </div>
+
+{% endif %}
+
+        </section>
+
+
+        <section class="profile-section">
+
+            <div class="profile-section-heading">
+                <div>
+                    <p class="profile-label">ІСТОРІЯ</p>
+                    <h2>Останні результати</h2>
+                </div>
+            </div>
+
+            <div class="profile-empty">
+                <div class="profile-empty-icon">◷</div>
+
+                <h3>Історії поки немає</h3>
+
+                <p>
+                    Після проходження вікторин тут з'являться твої результати.
+                </p>
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+{% endblock %}
