@@ -190,3 +190,10 @@ def quiz_detail(request, quiz_id):
     return render(request, 'quiz_detail.html', {
         'quiz': quiz
     })
+
+def all_quizzes(request):
+    quizzes = Quiz.objects.all().order_by('-created_at')
+
+    return render(request, 'quiz_list.html', {
+        'quizzes': quizzes
+    })

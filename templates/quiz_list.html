@@ -14,7 +14,7 @@
 
     <nav>
         <a href="/" class="active">Головна</a>
-        <a href="#">Вікторини</a>
+        <a href="{% url 'all_quizzes' %}">Вікторини</a>
         <a href="#">Рейтинг</a>
     </nav>
 
@@ -28,27 +28,29 @@
         </button>
 
         <div class="profile-dropdown">
-            <a href="{% url 'profile' %}">
-                👤 Мій профіль
-            </a>
 
-            <a href="#">
-                🧠 Мої вікторини
-            </a>
+        <a href="{% url 'profile' %}">
+            👤 Мій профіль
+        </a>
 
-            <a href="#">
-                ⚙️ Налаштування
-            </a>
+        <a href="{% url 'my_quizzes' %}">
+            🧠 Мої вікторини
+        </a>
 
-            <div class="profile-divider"></div>
+        <a href="#">
+            ⚙️ Налаштування
+        </a>
 
-            <form method="POST" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button type="submit" class="profile-logout">
-                    🚪 Вийти
-                </button>
-            </form>
-        </div>
+        <div class="profile-divider"></div>
+
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+
+            <button type="submit" class="profile-logout">
+                🚪 Вийти
+            </button>
+        </form>
+
     </div>
 
 {% else %}
