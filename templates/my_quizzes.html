@@ -91,9 +91,22 @@
                             Переглянути
                         </a>
 
-                        <a href="#" class="my-quiz-edit">
-                            Редагувати
+                        <a href="{% url 'edit_quiz' quiz.id %}" class="my-quiz-edit">
+                            ✏️ Редагувати
                         </a>
+
+                        <form method="POST"
+                            action="{% url 'delete_quiz' quiz.id %}"
+                            class="delete-quiz-form">
+
+                            {% csrf_token %}
+
+                            <button type="submit" class="delete-quiz-btn">
+                                <span>🗑</span>
+                                Видалити
+                            </button>
+
+                        </form>
 
                     </div>
 
@@ -128,5 +141,21 @@
     {% endif %}
 
 </main>
+
+<script>
+document.querySelectorAll('.delete-quiz-form').forEach(form => {
+    form.addEventListener('submit', function(event) {
+        const confirmed = confirm(
+            'Ти впевнений, що хочеш видалити цю вікторину?\n\n' +
+            'Усі її питання та відповіді також будуть видалені.\n' +
+            'Цю дію неможливо скасувати.'
+        );
+
+        if (!confirmed) {
+            event.preventDefault();
+        }
+    });
+});
+</script>
 
 {% endblock %}

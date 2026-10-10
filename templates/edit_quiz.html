@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+{% block title %}Редагування — {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<main class="editor-page">
+
+    <div class="editor-heading">
+        <a href="{% url 'quiz_detail' quiz.id %}" class="create-back">
+            ← Повернутися до вікторини
+        </a>
+
+        <div class="badge">✦ РЕДАГУВАННЯ</div>
+
+        <h1>Редагувати вікторину</h1>
+        <p>Змінюй питання, відповіді та налаштування.</p>
+    </div>
+
+    <form method="POST"
+          enctype="multipart/form-data"
+          id="quiz-form">
+
+        {% csrf_token %}
+
+        <input type="hidden"
+               name="questions"
+               id="questions-data">
+
+        {% if error %}
+            <div class="edit-error">{{ error }}</div>
+        {% endif %}
+
+        {% if form.errors %}
+            <div class="edit-error">
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <section class="editor-card">
+            <div class="editor-card-title">
+                <span class="editor-number">01</span>
+                <div>
+                    <h2>Основна інформація</h2>
+                    <p>Назва й опис твоєї вікторини.</p>
+                </div>
+            </div>
+
+            <div class="create-field">
+                <label>Назва вікторини</label>
+                {{ form.title }}
+            </div>
+
+            <div class="create-field">
+                <label>Опис</label>
+                {{ form.description }}
+            </div>
+        </section>
+
+        <div class="editor-section-heading">
+            <div>
+                <div class="badge">✦ ПИТАННЯ</div>
+                <h2>Редагування питань</h2>
+                <p id="question-count">0 питань</p>
+            </div>
+
+            <button type="button"
+                    class="main-btn"
+                    id="add-question">
+                + Додати питання
+            </button>
+        </div>
+
+        <div id="questions-container"></div>
+
+        <div class="edit-save-actions">
+            <a href="{% url 'quiz_detail' quiz.id %}"
+               class="my-quiz-edit">
+                Скасувати
+            </a>
+
+            <button type="submit" class="main-btn">
+                Зберегти зміни
+            </button>
+        </div>
+
+    </form>
+</main>
+
+{{ existing_questions|json_script:"existing-questions" }}
+
+<template id="question-template">
+    <section class="editor-card question-card">
+
+        <div class="editor-card-title">
+            <span class="editor-number question-number">01</span>
+
+            <div class="edit-question-heading">
+                <h2>Питання</h2>
+                <p>Зміни дані цього питання.</p>
+            </div>
+
+            <button type="button" class="remove-question">
+                Видалити
+            </button>
+        </div>
+
+        <div class="create-field">
+            <label>Текст питання</label>
+            <textarea class="question-text"
+                      rows="3"
+                      required></textarea>
+        </div>
+
+        <div class="edit-question-settings">
+            <div class="create-field">
+                <label>Тип питання</label>
+                <select class="question-type">
+                    <option value="text">Текст</option>
+                    <option value="image">Зображення</option>
+                    <option value="video">Відео</option>
+                </select>
+            </div>
+
+            <div class="create-field">
+                <label>Час на відповідь</label>
+                <select class="question-time">
+                    <option value="10">10 секунд</option>
+                    <option value="20">20 секунд</option>
+                    <option value="30">30 секунд</option>
+                    <option value="60">60 секунд</option>
+                    <option value="120">120 секунд</option>
+                </select>
+            </div>
+
+            <div class="create-field">
+                <label>Бали</label>
+                <select class="question-score">
+                    <option value="1">1 бал</option>
+                    <option value="2">2 бали</option>
+                    <option value="5">5 балів</option>
+                    <option value="10">10 балів</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="question-media" hidden>
+            <div class="image-field create-field" hidden>
+                <label>Зображення</label>
+                <p class="existing-image-label"></p>
+                <input type="file"
+                       accept="image/png,image/jpeg,image/webp"
+                       class="question-image">
+            </div>
+
+            <div class="video-field create-field" hidden>
+                <label>Посилання на відео</label>
+                <input type="url"
+                       class="question-video"
+                       placeholder="https://youtube.com/...">
+            </div>
+        </div>
+
+        <div class="answers-heading">
+            <h3>Варіанти відповідей</h3>
+            <p>Обери одну правильну відповідь.</p>
+        </div>
+
+        <div class="answers-grid">
+            <label class="answer-option">
+                <input type="radio"
+                       class="correct-answer"
+                       value="0"
+                       required>
+                <span class="answer-marker">A</span>
+                <input type="text"
+                       class="answer-text"
+                       maxlength="300"
+                       required
+                       placeholder="Перша відповідь">
+            </label>
+
+            <label class="answer-option">
+                <input type="radio"
+                       class="correct-answer"
+                       value="1">
+                <span class="answer-marker">B</span>
+                <input type="text"
+                       class="answer-text"
+                       maxlength="300"
+                       required
+                       placeholder="Друга відповідь">
+            </label>
+
+            <label class="answer-option">
+                <input type="radio"
+                       class="correct-answer"
+                       value="2">
+                <span class="answer-marker">C</span>
+                <input type="text"
+                       class="answer-text"
+                       maxlength="300"
+                       required
+                       placeholder="Третя відповідь">
+            </label>
+
+            <label class="answer-option">
+                <input type="radio"
+                       class="correct-answer"
+                       value="3">
+                <span class="answer-marker">D</span>
+                <input type="text"
+                       class="answer-text"
+                       maxlength="300"
+                       required
+                       placeholder="Четверта відповідь">
+            </label>
+        </div>
+    </section>
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('questions-container');
+    const template = document.getElementById('question-template');
+    const form = document.getElementById('quiz-form');
+    const existing = JSON.parse(
+        document.getElementById('existing-questions').textContent
+    );
+
+    function updateNumbers() {
+        const cards = [...container.querySelectorAll('.question-card')];
+
+        cards.forEach((card, index) => {
+            card.querySelector('.question-number').textContent =
+                String(index + 1).padStart(2, '0');
+
+            card.querySelectorAll('.correct-answer').forEach(radio => {
+                radio.name = `correct_${index}`;
+            });
+
+            card.querySelector('.question-image').name = `image_${index}`;
+        });
+
+        document.getElementById('question-count').textContent =
+            `${cards.length} питань`;
+    }
+
+    function updateMedia(card) {
+        const type = card.querySelector('.question-type').value;
+        const media = card.querySelector('.question-media');
+        const imageField = card.querySelector('.image-field');
+        const videoField = card.querySelector('.video-field');
+
+        media.hidden = type === 'text';
+        imageField.hidden = type !== 'image';
+        videoField.hidden = type !== 'video';
+
+        card.querySelector('.question-video').required = type === 'video';
+    }
+
+    function addQuestion(data = null) {
+        if (container.querySelectorAll('.question-card').length >= 50) {
+            alert('Максимум 50 питань.');
+            return;
+        }
+
+        const card = template.content.firstElementChild.cloneNode(true);
+
+        card.dataset.questionId = data?.id ?? '';
+
+        card.querySelector('.question-text').value = data?.text ?? '';
+        card.querySelector('.question-type').value = data?.type ?? 'text';
+        card.querySelector('.question-video').value = data?.video ?? '';
+
+        const timeSelect = card.querySelector('.question-time');
+        const scoreSelect = card.querySelector('.question-score');
+
+        timeSelect.value = String(data?.time_limit ?? 30);
+        scoreSelect.value = String(data?.score ?? 1);
+
+        // Зберігаємо навіть значення, яких немає в стандартному списку.
+        for (const [select, value] of [
+            [timeSelect, data?.time_limit],
+            [scoreSelect, data?.score]
+        ]) {
+            if (value != null && ![...select.options].some(
+                option => option.value === String(value)
+            )) {
+                select.add(new Option(String(value), String(value)));
+                select.value = String(value);
+            }
+        }
+
+        const answers = card.querySelectorAll('.answer-text');
+        answers.forEach((input, index) => {
+            input.value = data?.answers?.[index] ?? '';
+        });
+
+        const correct = data?.correct ?? 0;
+        card.querySelectorAll('.correct-answer')[correct].checked = true;
+
+        if (data?.image_url) {
+            card.querySelector('.existing-image-label').textContent =
+                'Поточне зображення збережено. Можна вибрати нове.';
+        }
+
+        card.querySelector('.question-type').addEventListener(
+            'change',
+            () => updateMedia(card)
+        );
+
+        card.querySelector('.remove-question').addEventListener(
+            'click',
+            () => {
+                if (container.querySelectorAll('.question-card').length <= 1) {
+                    alert('Потрібно залишити хоча б одне питання.');
+                    return;
+                }
+
+                card.remove();
+                updateNumbers();
+            }
+        );
+
+        container.appendChild(card);
+        updateMedia(card);
+        updateNumbers();
+    }
+
+    existing.forEach(question => addQuestion(question));
+
+    if (existing.length === 0) {
+        addQuestion();
+    }
+
+    document.getElementById('add-question').addEventListener(
+        'click',
+        () => addQuestion()
+    );
+
+    form.addEventListener('submit', event => {
+        const cards = [...container.querySelectorAll('.question-card')];
+
+        const questions = cards.map(card => {
+            const selected = card.querySelector('.correct-answer:checked');
+
+            return {
+                id: card.dataset.questionId
+                    ? Number(card.dataset.questionId)
+                    : null,
+                text: card.querySelector('.question-text').value,
+                type: card.querySelector('.question-type').value,
+                time_limit: Number(card.querySelector('.question-time').value),
+                score: Number(card.querySelector('.question-score').value),
+                video: card.querySelector('.question-video').value,
+                answers: [...card.querySelectorAll('.answer-text')]
+                    .map(input => input.value),
+                correct: selected ? Number(selected.value) : null
+            };
+        });
+
+        document.getElementById('questions-data').value =
+            JSON.stringify(questions);
+    });
+});
+</script>
+
+{% endblock %}

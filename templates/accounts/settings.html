@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Налаштування акаунта{% endblock %}
+
+{% block content %}
+
+<div class="settings-page">
+
+    <div class="settings-header">
+        <a href="{% url 'profile' %}" class="settings-back">
+            ← Назад до профілю
+        </a>
+
+        <div class="settings-eyebrow">✦ МІЙ АКАУНТ</div>
+
+        <h1>Налаштування</h1>
+
+        <p>
+            Керуй особистими даними та безпекою свого акаунта.
+        </p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="settings-message">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="settings-grid">
+
+        <!-- PERSONAL DATA -->
+        <section class="settings-card">
+
+            <div class="settings-card-header">
+                <div class="settings-icon">👤</div>
+                <div>
+                    <h2>Особисті дані</h2>
+                    <p>Інформація твого профілю</p>
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <input type="hidden" name="action" value="profile">
+
+                {% for field in profile_form %}
+                    <div class="settings-field">
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.errors %}
+                            <div class="settings-error">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="settings-save">
+                    Зберегти зміни
+                    <span>→</span>
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- PASSWORD -->
+        <section class="settings-card">
+
+            <div class="settings-card-header">
+                <div class="settings-icon">🔒</div>
+                <div>
+                    <h2>Безпека акаунта</h2>
+                    <p>Оновлення пароля</p>
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <input type="hidden" name="action" value="password">
+
+                {% for field in password_form %}
+                    <div class="settings-field">
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.errors %}
+                            <div class="settings-error">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="settings-save">
+                    Змінити пароль
+                    <span>→</span>
+                </button>
+
+            </form>
+
+        </section>
+
+    </div>
+
+</div>
+
+{% endblock %}
