@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+
+{% block title %}Проходження вікторини{% endblock %}
+
+{% block content %}
+
+<div class="play-page">
+
+    <div class="play-container">
+
+        <header class="play-header">
+            <div class="play-header-info">
+                <span class="play-label">✦ ВІКТОРИНА</span>
+                <h1>{{ quiz.title }}</h1>
+                <p>Гравець: <strong>{{ nickname }}</strong></p>
+            </div>
+
+            <div class="play-score">
+                <span>Твої бали</span>
+                <strong id="score">0</strong>
+            </div>
+        </header>
+
+        <div class="play-progress-info">
+            <span id="question-counter">Питання 1</span>
+            <span id="progress-percent">0%</span>
+        </div>
+
+        <div class="play-progress">
+            <div id="progress-bar"></div>
+        </div>
+
+        <div class="play-question-card">
+
+            <div class="play-question-top">
+                <span class="play-question-label">ПИТАННЯ</span>
+
+                <div class="play-timer">
+                    <span>⏱</span>
+                    <strong id="timer">30</strong>
+                    <span>с</span>
+                </div>
+            </div>
+
+            <h2 id="question-text"></h2>
+
+            <div id="question-media"></div>
+
+            <div id="answers-container" class="play-answers"></div>
+
+            <div id="answer-feedback" class="play-feedback"></div>
+
+            <button id="next-question" class="play-next" hidden>
+                Наступне питання →
+            </button>
+
+        </div>
+
+        <div id="quiz-finished" class="play-finished" hidden>
+            <div class="play-finished-icon">✦</div>
+            <h2>Вікторину завершено!</h2>
+            <p>Твій результат:</p>
+            <strong id="final-score">0</strong>
+            <span id="final-max-score"></span>
+
+            <a href="{% url 'quiz_list' %}" class="play-home-btn">
+                На головну
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+{{ questions_data|json_script:"quiz-questions-data" }}
+
+<script>
+const questions = JSON.parse(
+    document.getElementById('quiz-questions-data').textContent
+);
+
+let currentQuestion = 0;
+let score = 0;
+let timeLeft = 30;
+let timerInterval = null;
+let answered = false;
+
+const questionText = document.getElementById('question-text');
+const questionMedia = document.getElementById('question-media');
+const answersContainer = document.getElementById('answers-container');
+const feedback = document.getElementById('answer-feedback');
+const nextButton = document.getElementById('next-question');
+const timerElement = document.getElementById('timer');
+
+function updateProgress() {
+    const total = questions.length;
+    const completed = currentQuestion;
+
+    document.getElementById('question-counter').textContent =
+        `Питання ${Math.min(currentQuestion + 1, total)} з ${total}`;
+
+    document.getElementById('progress-percent').textContent =
+        `${Math.round((completed / total) * 100)}%`;
+
+    document.getElementById('progress-bar').style.width =
+        `${(completed / total) * 100}%`;
+}
+
+function stopTimer() {
+    if (timerInterval !== null) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+function startTimer() {
+    stopTimer();
+
+    timerElement.textContent = timeLeft;
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            stopTimer();
+            selectAnswer(null);
+        }
+    }, 1000);
+}
+
+function showQuestion() {
+    if (currentQuestion >= questions.length) {
+        finishQuiz();
+        return;
+    }
+
+    answered = false;
+    feedback.textContent = '';
+    nextButton.hidden = true;
+    answersContainer.innerHTML = '';
+    questionMedia.innerHTML = '';
+
+    const question = questions[currentQuestion];
+
+    questionText.textContent = question.text;
+
+    if (question.image) {
+        const image = document.createElement('img');
+        image.src = question.image;
+        image.alt = 'Зображення до питання';
+        image.className = 'play-question-image';
+        questionMedia.appendChild(image);
+    }
+
+    if (question.video) {
+        const link = document.createElement('a');
+        link.href = question.video;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Переглянути відео до питання ↗';
+        link.className = 'play-video-link';
+        questionMedia.appendChild(link);
+    }
+
+    question.answers.forEach((answer, index) => {
+        const button = document.createElement('button');
+
+        button.type = 'button';
+        button.className = 'play-answer';
+        button.textContent = answer.text;
+
+        button.addEventListener('click', () => {
+            selectAnswer(index);
+        });
+
+        answersContainer.appendChild(button);
+    });
+
+    timeLeft = Math.max(1, question.time_limit || 30);
+
+    updateProgress();
+    startTimer();
+}
+
+function selectAnswer(selectedIndex) {
+    if (answered) return;
+
+    answered = true;
+    stopTimer();
+
+    const question = questions[currentQuestion];
+    const buttons = answersContainer.querySelectorAll('button');
+
+    let correct = false;
+
+    question.answers.forEach((answer, index) => {
+        if (answer.is_correct) {
+            buttons[index].classList.add('correct');
+        }
+
+        if (selectedIndex === index) {
+            if (answer.is_correct) {
+                correct = true;
+            } else {
+                buttons[index].classList.add('incorrect');
+            }
+        }
+
+        buttons[index].disabled = true;
+    });
+
+    if (correct) {
+        score += question.score || 1;
+
+        feedback.textContent = '✓ Правильна відповідь!';
+        feedback.className = 'play-feedback success';
+    } else if (selectedIndex === null) {
+        feedback.textContent = 'Час вийшов!';
+        feedback.className = 'play-feedback error';
+    } else {
+        feedback.textContent = 'Неправильна відповідь';
+        feedback.className = 'play-feedback error';
+    }
+
+    document.getElementById('score').textContent = score;
+
+    nextButton.hidden = false;
+    nextButton.textContent =
+        currentQuestion === questions.length - 1
+            ? 'Завершити вікторину →'
+            : 'Наступне питання →';
+}
+
+function finishQuiz() {
+    stopTimer();
+
+    document.querySelector('.play-question-card').hidden = true;
+    document.getElementById('quiz-finished').hidden = false;
+
+    const maxScore = questions.reduce(
+        (sum, question) => sum + (question.score || 1),
+        0
+    );
+
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-max-score').textContent =
+        `із ${maxScore} можливих балів`;
+
+    document.getElementById('progress-bar').style.width = '100%';
+    document.getElementById('progress-percent').textContent = '100%';
+}
+
+nextButton.addEventListener('click', () => {
+    currentQuestion++;
+    showQuestion();
+});
+
+if (questions.length > 0) {
+    showQuestion();
+} else {
+    document.querySelector('.play-question-card').hidden = true;
+    document.getElementById('quiz-finished').hidden = false;
+    document.getElementById('final-max-score').textContent =
+        'У цій вікторині поки немає питань.';
+}
+</script>
+
+{% endblock %}

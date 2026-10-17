@@ -182,12 +182,14 @@ def create_quiz(request):
         'error': error
     })
 
-@login_required(login_url='login')
+
 def quiz_detail(request, quiz_id):
-    quiz = Quiz.objects.get(
-        id=quiz_id,
-        author=request.user
-    )
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    return render(request, 'quiz_detail.html', {
+        'quiz': quiz,
+        'is_owner': request.user.is_authenticated and quiz.author_id == request.user.id,
+    })
 
     return render(request, 'quiz_detail.html', {
         'quiz': quiz
@@ -454,3 +456,99 @@ def delete_quiz(request, quiz_id):
     quiz.delete()
 
     return redirect('my_quizzes')
+
+
+def join_quiz(request):
+    if request.method == 'POST':
+        invitation_code = request.POST.get(
+            'invitation_code', ''
+        ).strip()
+
+        nickname = request.POST.get(
+            'nickname', ''
+        ).strip()
+
+        if not invitation_code:
+            return render(request, 'join_quiz.html', {
+                'error': 'Введи код запрошення.',
+                'nickname': nickname,
+            })
+
+        if not nickname:
+            return render(request, 'join_quiz.html', {
+                'error': 'Введи свій нікнейм.',
+                'invitation_code': invitation_code,
+            })
+
+        if len(nickname) > 50:
+            return render(request, 'join_quiz.html', {
+                'error': 'Нікнейм має містити не більше 50 символів.',
+                'invitation_code': invitation_code,
+            })
+
+        quiz = Quiz.objects.filter(
+            invitation_code=invitation_code
+        ).first()
+
+        if not quiz:
+            return render(request, 'join_quiz.html', {
+                'error': 'Вікторину з таким кодом не знайдено.',
+                'invitation_code': invitation_code,
+                'nickname': nickname,
+            })
+
+        request.session['quiz_nickname'] = nickname
+        request.session['quiz_invitation_code'] = quiz.invitation_code
+
+        return redirect(
+            'play_quiz',
+            invitation_code=quiz.invitation_code
+        )
+
+    return render(request, 'join_quiz.html', {
+    'invitation_code': request.GET.get('code', '').strip()
+        })
+
+
+def play_quiz(request, invitation_code):
+    quiz = get_object_or_404(
+        Quiz,
+        invitation_code=invitation_code
+    )
+
+    nickname = request.session.get('quiz_nickname')
+    joined_code = request.session.get('quiz_invitation_code')
+
+    if not nickname or joined_code != invitation_code:
+        return redirect('join_quiz')
+
+    questions = quiz.questions.prefetch_related(
+        'answers'
+    ).order_by('order', 'id')
+
+    questions_data = []
+
+    for question in questions:
+        questions_data.append({
+            'id': question.id,
+            'text': question.text,
+            'image': question.image.url if question.image else None,
+            'video': question.video,
+            'time_limit': question.time_limit,
+            'score': question.score,
+            'answers': [
+                {
+                    'id': answer.id,
+                    'text': answer.text,
+                    'is_correct': answer.is_correct,
+                }
+                for answer in question.answers.all()
+            ],
+        })
+
+    return render(request, 'play_quiz.html', {
+        'quiz': quiz,
+        'nickname': nickname,
+        'questions_data': questions_data,
+    })
+

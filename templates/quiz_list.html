@@ -159,46 +159,34 @@
 
         </div>
 
+        <div class="quiz-grid"></div>
+        {% for quiz in quizzes %}
 
-        <div class="quiz-grid">
-
-            {% for quiz in quizzes %}
-
-            <article class="quiz-card">
+            <article
+                class="quiz-card clickable-quiz-card"
+                data-url="{% url 'quiz_detail' quiz.id %}"
+                tabindex="0"
+                role="link"
+            >
 
                 <div class="quiz-card-top">
-
-                    <div class="quiz-icon">
-                        🧠
-                    </div>
-
-                    <span class="quiz-badge">
-                        QUIZ
-                    </span>
-
+                    <div class="quiz-icon">🧠</div>
+                    <span class="quiz-badge">QUIZ</span>
                 </div>
 
-                <h3>
-                    {{ quiz.title }}
-                </h3>
+                <h3>{{ quiz.title }}</h3>
 
                 <p>
                     {{ quiz.description|default:"Перевір свої знання у цій вікторині." }}
                 </p>
 
                 <div class="quiz-info">
-
-                    <span>
-                        👤 {{ quiz.author.username }}
-                    </span>
-
-                    <span>
-                        🎯 Вікторина
-                    </span>
-
+                    <span>👤 {{ quiz.author.username }}</span>
+                    <span>🎯 Вікторина</span>
                 </div>
 
-                <a href="#" class="play-btn">
+                <a href="{% url 'join_quiz' %}?code={{ quiz.invitation_code|urlencode }}"
+                class="play-btn">
                     Пройти
                     <span>→</span>
                 </a>
@@ -229,7 +217,7 @@
             </div>
 
             {% endfor %}
-
+            </div>
         </div>
 
     </section>
@@ -248,5 +236,26 @@
     </p>
 
 </footer>
+
+<script>
+document.querySelectorAll('.clickable-quiz-card').forEach(card => {
+
+    card.addEventListener('click', function(event) {
+        if (event.target.closest('a, button')) return;
+
+        window.location.href = card.dataset.url;
+    });
+
+    card.addEventListener('keydown', function(event) {
+        if (event.target !== card) return;
+
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            window.location.href = card.dataset.url;
+        }
+    });
+
+});
+</script>
 
 {% endblock %}

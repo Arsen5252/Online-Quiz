@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Приєднатися до вікторини{% endblock %}
+
+{% block content %}
+
+<div class="join-page">
+
+    <div class="join-card">
+
+        <div class="join-icon">✦</div>
+
+        <h1>Приєднатися до гри</h1>
+
+        <p class="join-subtitle">
+            Введи код запрошення та обери нікнейм,
+            щоб розпочати вікторину.
+        </p>
+
+        {% if error %}
+            <div class="join-error">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="POST" class="join-form">
+            {% csrf_token %}
+
+            <div class="join-field">
+                <label for="invitation_code">
+                    Код запрошення
+                </label>
+
+                <input
+                    type="text"
+                    id="invitation_code"
+                    name="invitation_code"
+                    placeholder="Введи код вікторини"
+                    value="{{ invitation_code|default:'' }}"
+                    maxlength="20"
+                    required
+                >
+            </div>
+
+            <div class="join-field">
+                <label for="nickname">
+                    Твій нікнейм
+                </label>
+
+                <input
+                    type="text"
+                    id="nickname"
+                    name="nickname"
+                    placeholder="Наприклад, Player123"
+                    value="{{ nickname|default:'' }}"
+                    maxlength="50"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="join-button">
+                Приєднатися
+                <span>→</span>
+            </button>
+
+        </form>
+
+        <div class="join-footer">
+            Для участі реєстрація не потрібна
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
